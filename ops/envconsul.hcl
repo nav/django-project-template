@@ -9,12 +9,12 @@ upcase = true
 
 
 secret {
-  path      = "secret/data/appliancehq"
+  path      = "secret/data/{{ project_name|slugify }}"
   no_prefix = true
 }
 
 secret {
-  path      = "aws/creds/appliancehq-role"
+  path      = "aws/creds/{{ project_name|slugify }}-role"
   no_prefix = true
   format = "aws_{{ key | replaceKey `access_key` `access_key_id` | replaceKey `secret_key` `secret_access_key` }}"
 }
