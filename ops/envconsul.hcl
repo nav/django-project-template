@@ -16,7 +16,9 @@ secret {
 secret {
   path      = "aws/creds/{{ project_name|slugify }}-role"
   no_prefix = true
+  {% verbatim %}
   format = "aws_{{ key | replaceKey `access_key` `access_key_id` | replaceKey `secret_key` `secret_access_key` }}"
+  {% endverbatim %}
 }
 
 vault {
