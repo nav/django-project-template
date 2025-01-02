@@ -1,0 +1,7 @@
+app_name       = "{{ project_name|slugify }}"
+app_role       = "{{ project_name|slugify }}_role"
+aws_account_id = ""
+aws_profile    = ""
+aws_region     = "us-west-2"
+ecr_repo       = "nav/{{ project_name|slugify }}"
+s3_bucket      = "{{ project_name|slugify }}"

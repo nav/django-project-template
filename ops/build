@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+COMMAND=${1:-build}
+CONFIG_FILE=ops/config.json
+source ops/env.sh production ${CONFIG_FILE}
+IMAGE_NAME=${ECR_REPO}:${IMAGE_TAG:-latest}
+
+
+function build() {
+    docker build --platform=linux/amd64 --force-rm --no-cache --tag ${IMAGE_NAME} --file ops/Dockerfile .
+}
+
+function push() {
+    docker push ${IMAGE_NAME}
+    echo ""
+    echo -e "Pushed image: ${IMAGE_NAME}"
+}
+
+###
+
+build;
+push;

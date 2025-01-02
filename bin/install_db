@@ -1,0 +1,80 @@
+#!/bin/bash
+
+# Function to display usage
+usage() {
+    echo ""
+    echo "Usage: $0 [--help] [--recreate] db_name"
+    echo ""
+    echo "  db_name       The name of the database to be used"
+    echo "  --recreate    Drop and recreate the database (optional)"
+    echo "  --help        Show this help message"
+    exit 1
+}
+
+# Default value for recreate flag
+RECREATE=false
+
+# Parse arguments
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        --help)
+            usage
+            ;;
+        --recreate)
+            RECREATE=true
+            shift
+            ;;
+        *)
+            DB_NAME="$1"
+            shift
+            ;;
+    esac
+done
+
+# Ensure db_name is provided
+if [ -z "$DB_NAME" ]; then
+    echo "Error: db_name argument is required."
+    usage
+fi
+
+# Positional argument: db_name
+export DB_NAME
+
+# Function to check for required files
+check_pg_files() {
+    local pg_service_conf=".pg_service.conf"
+    local pgpass_file=".pgpass"
+
+    if [ ! -f "$pg_service_conf" ]; then
+        echo "Warning: $pg_service_conf file is missing. PostgreSQL service file is required."
+    fi
+
+    if [ ! -f "$pgpass_file" ]; then
+        echo "Warning: $pgpass_file file is missing. PostgreSQL password file is required."
+    fi
+}
+
+# Run the PostgreSQL config file check
+check_pg_files
+
+# Migrate function
+migrate() {
+  uv run --no-sync python src/manage.py makemigrations
+  uv run --no-sync python src/manage.py migrate
+}
+
+# Run the main script
+run() {
+  if [ "$RECREATE" = true ]; then
+    echo "Dropping and recreating the database..."
+    dropdb --if-exists $DB_NAME
+    createdb --encoding=utf8 $DB_NAME
+  else
+    echo "Skipping database drop and creation."
+  fi
+
+  migrate
+  load_geonames
+}
+
+run

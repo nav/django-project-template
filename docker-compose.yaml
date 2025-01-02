@@ -1,0 +1,61 @@
+networks:
+  development:
+
+volumes:
+  postgres_data:
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: db
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - development
+
+  cache:
+    image: redis:6-alpine
+    container_name: cache
+    ports:
+      - 6379:6379
+    networks:
+      - development
+
+  objectstore:
+    image: quay.io/minio/minio
+    container_name: objectstore
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    env_file: ".env"
+    environment:
+      MINIO_ROOT_USER:
+      MINIO_ROOT_PASSWORD:
+    volumes:
+      - ~/media:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - development
+
+  objectstore-init:
+    image: quay.io/minio/mc
+    container_name: objectstore_init
+    env_file: .env
+    depends_on:
+      - objectstore
+    entrypoint: >
+      /bin/sh -c '
+      /usr/bin/mc alias set objectstore http://objectstore:9000 "$${MINIO_ROOT_USER}" "$${MINIO_ROOT_PASSWORD}";
+      /usr/bin/mc mb objectstore/"$${AWS_STORAGE_BUCKET_NAME}";
+      /usr/bin/mc admin user add objectstore "$${AWS_S3_ACCESS_KEY_ID}" "$${AWS_S3_SECRET_ACCESS_KEY}";
+      /usr/bin/mc admin policy attach objectstore readwrite --user "$${AWS_S3_ACCESS_KEY_ID}";
+      exit 0;
+      '
+    networks:
+      - development

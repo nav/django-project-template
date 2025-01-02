@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+source ./ops/env.sh production ops/config.json
+
+# TODO(nav): Implement sanity check for required directory and files
+
+cd ${DIR}/tf
+
+sort default.tfvars > sorted-default.tfvars
+mv sorted-default.tfvars default.tfvars
+
+cp default.tfvars terraform.tfvars
+cat <<EOF >> terraform.tfvars
+foo = "bar"
+EOF
+
+cp default-variables.hcl variables.tf
+cat <<EOF >> variables.tf
+variable "foo" {}
+EOF
+
+terraform fmt > /dev/null
+terraform validate > /dev/null
+terraform get > /dev/null
+
+terraform ${@}
+
+rm terraform.tfvars
+rm variables.tf
+
+cd -

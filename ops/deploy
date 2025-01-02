@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+COMMAND=${1:-create}
+BRANCH=${2:-main}
+
+source ops/env.sh production ops/config.json
+
+apply() {
+    kustomize build ops/k8s \
+        | sed "s/<<app_name>>/${APP_NAME}/g" \
+        | sed "s/<<namespace>>/${NAMESPACE}/g" \
+        | sed "s/<<fqdn>>/${FQDN}/g" \
+        | sed "s@<<image>>@${ECR_REPO}:latest@g" \
+        | sed "s/<<environment>>/${ENVIRONMENT}/g" \
+        | sed "s@<<branch>>@${BRANCH}@g" \
+        | kubectl apply -f -
+}
+
+
+delete() {
+    kustomize build ops/k8s \
+        | sed "s/<<app_name>>/${APP_NAME}/g" \
+        | sed "s/<<namespace>>/${NAMESPACE}/g" \
+        | sed "s/<<fqdn>>/${FQDN}/g" \
+        | sed "s@<<image>>@${ECR_REPO}:latest@g" \
+        | sed "s/<<environment>>/${ENVIRONMENT}/g" \
+        | sed "s/<<branch>>/${BRANCH}/g" \
+        | kubectl delete -f -
+}
+
+
+err_no_namespace() {
+    echo "Namespace does not exist. Nothing to do."
+}
+
+
+####
+
+kubectl get namespace ${NAMESPACE} > /dev/null 2>&1
+NO_NAMESPACE=$?
+
+if [ $COMMAND == "delete" ]; then
+    if [ $NO_NAMESPACE -eq 1 ]; then
+        err_no_namespace;
+        exit 1
+    fi
+
+    delete;
+else
+    apply;
+fi

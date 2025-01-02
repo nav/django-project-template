@@ -1,0 +1,26 @@
+{% load static thumbnail math %}
+
+
+<!doctype html>
+<html class="h-full bg-white">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>{{ project_name }}</title>
+        <meta name="description" content="Home of {{ project_name }}">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="{% static "css/output.css" %}" />
+        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+        <script src="https://unpkg.com/htmx.org@2.0.4" crossorigin="anonymous"></script>
+        {% block extra_head %}{% endblock %}
+
+        <script type="text/javascript">
+         htmx.config.responseHandling.unshift({code:"422", swap: true})
+        </script>
+    </head>
+
+    <body>
+        {% block content %}Hello World!{% endblock %}
+    </body>
+</html>

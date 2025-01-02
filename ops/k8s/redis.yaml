@@ -1,0 +1,92 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  labels:
+    app: <<app_name>>-redis
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  selector:
+    matchLabels:
+      app: <<app_name>>-redis
+
+  template:
+    metadata:
+      annotations:
+        vault.hashicorp.com/agent-requests-cpu: "20m"
+        vault.hashicorp.com/agent-limits-cpu: "40m"
+        vault.hashicorp.com/agent-pre-populate-only: "true"
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-secret-config: "secret/data/<<app_name>>"
+        vault.hashicorp.com/agent-inject-template-config: |
+          {{ with secret "secret/data/<<app_name>>" -}}
+            export REDIS_PASSWORD="{{ .Data.data.REDIS_PASSWORD }}"
+          {{- end }}
+        vault.hashicorp.com/auth-path: "auth/kubernetes-<<app_name>>"
+        vault.hashicorp.com/role: "<<app_name>>-role"
+      labels:
+        app: <<app_name>>-redis
+
+    spec:
+      serviceAccountName: <<app_name>>-vault-auth
+      topologySpreadConstraints:
+        - labelSelector:
+            matchLabels:
+              app: <<app_name>>-web
+          maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+      nodeSelector:
+        nav.lan/role: app
+      containers:
+        - name: <<app_name>>-redis
+          image: redis:7-alpine
+          imagePullPolicy: Always
+          env:
+            - name: MASTER
+              value: "true"
+          command: ["/bin/sh"]
+          args:
+            [
+              "-c",
+              "source /vault/secrets/config && redis-server --requirepass ${REDIS_PASSWORD}",
+            ]
+          ports:
+            - containerPort: 6379
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 50m
+            limits:
+              memory: 256Mi
+              cpu: 100m
+          livenessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+spec:
+  selector:
+    app: <<app_name>>-redis
+  ports:
+    - name: <<app_name>>-redis-6379
+      protocol: TCP
+      port: 6379
+      targetPort: 6379

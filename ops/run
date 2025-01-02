@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+
+COMMAND=$1 # web, worker
+
+. ./ops/env.sh production ./ops/config.json
+unset AWS_PROFILE
+
+web() {
+    # Sleep is for AWS to record the newly provisioned credentials on their side.
+    envconsul \
+        -vault-token $(cat /vault/secrets/token) \
+        -config ./ops/envconsul.hcl \
+        ./ops/run_web
+}
+
+worker() {
+    echo "Not implemented yet."
+}
+
+###
+
+if [ -n "${COMMAND}" ]; then
+    ${COMMAND}
+else
+    web
+fi

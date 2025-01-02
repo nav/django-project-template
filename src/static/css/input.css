@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@page {
+  size: letter;
+  margin: 10mm 10mm 2mm 10mm;
+
+  @bottom-left {
+    content: counter(page) ' of ' counter(pages);
+  }
+}
+
+@media screen {
+  .print {
+    display: none;
+  }
+}
+
+@media print {
+  html, body {
+    overflow: hidden;
+  }
+
+  body {
+    visibility: hidden;
+  }
+
+  .print {
+    visibility: visible;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+
+}
+

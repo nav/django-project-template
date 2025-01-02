@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+
+# Wait for AWS to record the newly provisioned credentials on their side.
+sleep 5
+
+echo ${DATABASE_CONFIG} | base64 -d > .pg_service.conf
+echo ${DATABASE_CREDENTIALS} | base64 -d > .pgpass
+chmod 600 .pgpass
+
+make migrate
+make static
+make run

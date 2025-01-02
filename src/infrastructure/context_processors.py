@@ -1,0 +1,2 @@
+def globals(request):
+    return {}
