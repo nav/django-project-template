@@ -1,10 +1,10 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? import <nixos> {} }:
 
 pkgs.mkShell {
   buildInputs = [
     pkgs.docker-compose
     pkgs.git
-    pkgs.nodejs-18_x
+    pkgs.nodejs_22
     pkgs.openssl
     pkgs.postgresql_16
     pkgs.pre-commit

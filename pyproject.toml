@@ -1,0 +1,142 @@
+[project]
+name = "{{ project_name|slugify }}"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.1",
+    "psycopg>=3.2",
+    "django-allauth[socialaccount]>=64.3",
+    "django-storages[s3]>=1.14.4",
+    "python-ulid>=3.0",
+    "whitenoise>=6.8",
+    "openai>=1.58",
+    "redis>=5.2",
+    "django-widget-tweaks>=1.5",
+    "httpx>=0.28",
+    "gunicorn>=23.0",
+    "brotli>=1.1",
+    "sentry-sdk[django]>=2.19",
+    "django-prometheus>=2.3",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/project"]
+
+[tool.uv]
+dev-dependencies = [
+    "black>=24.10",
+    "pyflakes>=3.2",
+    "python-lsp-server>=1.12",
+    "ruff>=0.8",
+    "pyright>=1.1.377",
+    "pre-commit>=3.8",
+    "ruff-lsp>=0.0.55",
+    "pytest>=8.3",
+    "pytest-django>=4.8",
+    "factory-boy>=3.3",
+    "pytest-cov>=5.0",
+    "ipython>=8.27",
+]
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "project.settings"
+minversion = "6.0"
+addopts = "-ra --reuse-db --no-migrations"                             # --cov=src --cov-report=term-missing"
+python_files = ["tests.py", "test_*.py"]
+testpaths = ["src/*/tests"]
+filterwarnings = ['ignore:Overriding setting DATABASES.*:UserWarning']
+
+[tool.coverage.report]
+skip_empty = true
+skip_covered = true
+
+[tool.coverage.run]
+omit = ["*/migrations/*", "test_*.py", "conftest.py"]
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+]
+
+# Same as Black.
+line-length = 88
+indent-width = 4
+
+# Assume Python 3.12
+target-version = "py312"
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# McCabe complexity (`C901`) by default.
+select = ["E4", "E7", "E9", "F"]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+# Enable auto-formatting of code examples in docstrings. Markdown,
+# reStructuredText code/literal blocks and doctests are all supported.
+#
+# This is currently disabled by default, but it is planned for this
+# to be opt-out in the future.
+docstring-code-format = true
+
+# Set the line length limit used when formatting code snippets in
+# docstrings.
+#
+# This only has an effect when the `docstring-code-format` setting is
+# enabled.
+docstring-code-line-length = "dynamic"
