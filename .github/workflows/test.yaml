@@ -1,0 +1,78 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    env:
+      PIPENV_NOSPIN: "true"
+
+    services:
+      db:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: "test_app"
+          POSTGRES_USER: "app"
+          POSTGRES_PASSWORD: "app"
+        ports:
+          - 5432:5432
+      cache:
+        image: redis:6-alpine
+        env:
+          REDIS_PASSWORD: "app"
+        ports:
+          - 6379:6379
+      objectstore:
+        image: quay.io/minio/minio
+        env:
+          MINIO_ROOT_USER: minio_app
+          MINIO_ROOT_PASSWORD: minio_app
+          CONSOLE_ACCESS_KEY: test
+          CONSOLE_SECRET_KEY: test
+        ports:
+          - 9000:9000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: "pyproject.toml"
+
+      - name: Install the project
+        run: uv sync --all-extras --dev
+
+      - name: Make envfile
+        uses: SpicyPizza/create-envfile@v2.0
+        with:
+          envkey_DEBUG: false
+          envkey_AWS_ENDPOINT_URL: "http://localhost:9000"
+          envkey_AWS_STORAGE_BUCKET_NAME: "{{ project_name|slugify }}"
+          envkey_PGPASSFILE: ".pgpass"
+          envkey_PGSERVICE: "app_service"
+          envkey_PGSERVICEFILE: ".pg_service.conf"
+          envkey_DATABASE_NAME: "test_app"
+
+      - name: Setup database
+        run: make db
+
+      - name: Collect static files
+        run: make static
+
+      - name: Run test suite
+        run: make test
