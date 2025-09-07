@@ -1,6 +1,5 @@
 import factory
 from factory.django import DjangoModelFactory
-from infrastructure.factories import BaseAddressFactory
 
 
 class SiteFactory(DjangoModelFactory):
@@ -11,7 +10,7 @@ class SiteFactory(DjangoModelFactory):
         model = "sites.Site"
 
 
-class TenantFactory(BaseAddressFactory):
+class TenantFactory(DjangoModelFactory):
     site = factory.SubFactory(SiteFactory)
 
     class Meta:

@@ -4,20 +4,20 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.12"
 dependencies = [
-    "django>=5.1",
-    "psycopg>=3.2",
-    "django-allauth[socialaccount]>=64.3",
-    "django-storages[s3]>=1.14.4",
-    "python-ulid>=3.0",
-    "whitenoise>=6.8",
-    "openai>=1.58",
-    "redis>=5.2",
-    "django-widget-tweaks>=1.5",
-    "httpx>=0.28",
-    "gunicorn>=23.0",
-    "brotli>=1.1",
-    "sentry-sdk[django]>=2.19",
-    "django-prometheus>=2.3",
+    "django",
+    "psycopg",
+    "django-allauth[socialaccount]",
+    "django-storages[s3]",
+    "python-ulid",
+    "whitenoise",
+    "openai",
+    "redis",
+    "django-widget-tweaks",
+    "httpx",
+    "gunicorn",
+    "brotli",
+    "sentry-sdk[django]",
+    "django-prometheus",
 ]
 
 [build-system]
@@ -29,18 +29,18 @@ packages = ["src/project"]
 
 [tool.uv]
 dev-dependencies = [
-    "black>=24.10",
-    "pyflakes>=3.2",
-    "python-lsp-server>=1.12",
-    "ruff>=0.8",
-    "pyright>=1.1.377",
-    "pre-commit>=3.8",
-    "ruff-lsp>=0.0.55",
-    "pytest>=8.3",
-    "pytest-django>=4.8",
-    "factory-boy>=3.3",
-    "pytest-cov>=5.0",
-    "ipython>=8.27",
+    "black",
+    "pyflakes",
+    "python-lsp-server",
+    "ruff",
+    "pyright",
+    "pre-commit",
+    "ruff-lsp",
+    "pytest",
+    "pytest-django",
+    "factory-boy",
+    "pytest-cov",
+    "ipython",
 ]
 
 [tool.pyright]
