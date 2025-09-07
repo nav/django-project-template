@@ -33,20 +33,6 @@ pkgs.mkShell {
     export NODE_PATH=$PWD/node_modules:$NODE_PATH
     export PATH=$PWD/node_modules/.bin:$PATH
 
-    # Initialize uv project if pyproject.toml doesn't exist
-    if [ ! -f pyproject.toml ]; then
-      echo "📦 Initializing uv project..."
-      uv init --no-readme --python 3.13
-
-      # Add common development dependencies
-      uv add --dev pytest pytest-django pytest-cov
-      uv add --dev ruff black isort
-      uv add --dev pre-commit mypy
-
-      # Add Django and HTMX dependencies
-      uv add django django-htmx
-    fi
-
     # Activate the uv environment
     source .venv/bin/activate
 
