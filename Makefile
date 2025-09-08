@@ -35,21 +35,12 @@ db: db_creds
 	@./bin/install_db --recreate ${DATABASE_NAME}
 
 
-install: run/docker			## Install dependencies and run docker services
-	@uv sync
+install: run/docker			## Install dependencies and run docker services@uv sync
+	@uv run --no-sync python src/manage.py makemigrations --no-input
+	@uv run --no-sync python src/manage.py migrate --no-input
 	@echo "Creating password for superuser"
 	@uv run python src/manage.py createsuperuser --username=nav --email=nav@navaulakh.com
-	@uv run python src/manage.py createtenant \
-		--domain="localhost:8000" \
-		--name=Localhost \
-		--street="123 Main St" \
-		--city=Surrey \
-		--province='BC' \
-		--country=CA \
-		--postal_code="V3W 1S9" \
-		--phone="604-555-1234" \
-		--email="info@example.com" \
-		--logo="./src/static/img/logo.png"
+	@uv run python src/manage.py createtenant --domain=localhost --name=localhost
 
 
 run:			## Run Django application server
